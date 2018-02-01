@@ -1,0 +1,8 @@
+exportPattern("^[[:alpha:]]+")
+S3method(value,default)
+S3method(value,exphist)
+S3method(insert,default)
+S3method(insert,exphist)
+S3method(size,default)
+S3method(size,exphist)
+S3method(print,exphist)
