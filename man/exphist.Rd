@@ -4,12 +4,14 @@
 \alias{exphist}
 \title{Create an instance of a exponential histogram}
 \usage{
-exphist(winsize = 100, epson = 0.05)
+exphist(winsize = 100, epsilon = 0.05, duration = NULL)
 }
 \arguments{
 \item{winsize}{size of the sliding window}
 
-\item{epson}{maximum relative error}
+\item{epsilon}{maximum relative error}
+
+\item{duration}{time duration for timebased buckets}
 }
 \value{
 an object of class 'exphist'

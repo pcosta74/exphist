@@ -6,16 +6,18 @@
 \alias{insert.exphist}
 \title{Insert}
 \usage{
-insert(x, val)
+insert(x, val, ts = NULL)
 
-\method{insert}{exphist}(x, val)
+\method{insert}{exphist}(x, val, ts = NULL)
 
-\method{insert}{exphist}(x, val)
+\method{insert}{exphist}(x, val, ts = NULL)
 }
 \arguments{
 \item{x}{an exponential histogram}
 
 \item{val}{a value to be inserted into the histogram}
+
+\item{ts}{a timestamp}
 }
 \value{
 the histogram holding the newly inserted value
