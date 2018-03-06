@@ -1,13 +1,15 @@
 globalVariables(c('N','K'), 'exphist')
 
 #' Create an instance of a exponential histogram
-#' @param epson maximum relative error
+#' @param epsilon maximum relative error
 #' @param winsize size of the sliding window
+#' @param duration time duration for timebased buckets
 #' @return an object of class 'exphist'
 #' @export
-exphist <- function(winsize=100, epson = 0.05) {
+exphist <- function(winsize=100, epsilon = 0.05, duration=NULL) {
   stopifnot(is.numeric(winsize) && winsize > 1)
-  stopifnot(is.numeric(epson) && 0 < epson && epson < 1)
+  stopifnot(is.numeric(epsilon) && 0 < epsilon && epsilon < 1)
+  stopifnot(is.null(duration) || (is.numeric(duration) && duration > 0))
 
   this <- list(
       buckets = NULL,
@@ -16,9 +18,10 @@ exphist <- function(winsize=100, epson = 0.05) {
       LAST  = 0,
       TOTAL = 0,
       N = winsize,
-      K = ceiling(1/epson)
+      K = ceiling(1/epsilon)
   )
-  class(this) <- c(class(this), 'exphist')
+  attr(this, 'duration') <- duration
+  class(this)   <- c(class(this), 'exphist')
   return(this)
 }
 
@@ -60,7 +63,8 @@ value.default <- function(x) {
 #' @rdname value
 #' @method value exphist
 value.exphist <- function(x) {
-  with(x, sum(buckets), -0.5*buckets[1])
+  f <- as.numeric(.is.last(x))
+  with(x, sum(buckets, -0.5*f*buckets[1]))
 }
 
 #' Insert
@@ -74,6 +78,7 @@ value.exphist <- function(x) {
 #' @rdname insert
 #' @param x an exponential histogram
 #' @param val a value to be inserted into the histogram
+#' @param ts a timestamp
 #' @return the histogram holding the newly inserted value
 ##' @examples
 #' ## Create the exp. hist.
@@ -81,20 +86,39 @@ value.exphist <- function(x) {
 #' ## Compute the value
 #' insert(eh, 1)
 #' @export
-insert <- function(x, val) {
+insert <- function(x, val, ts=NULL) {
   UseMethod('insert', x)
 }
 
 #' @rdname insert
 #' @method insert exphist
-insert.default <- function(x, val) {
+insert.default <- function(x, val, ts=NULL) {
   .class.mismatch(x)
 }
 
 #' @rdname insert
 #' @method insert exphist
-insert.exphist <- function(x, val) {
+insert.exphist <- function(x, val, ts=NULL) {
   stopifnot(is.numeric(val))
+  stopifnot(is.null(ts) || is.numeric(ts))
+
+  expired  <- TRUE
+  if(is.numeric(attr(x, 'duration')) && is.numeric(ts)) {
+    init <- is.null(attr(x, 'ts'))
+    if(init) {
+      attr(x, 'ts') <- ts
+    }
+
+    ts0 <- attr(x, 'ts')
+    if(!init && ts0 >= ts) {
+      stop(sprintf(.FMT.INV.TSP, ts0, ts), call.=FALSE)
+    }
+
+    expired <- (ts - ts0) >= attr(x,'duration')
+    if(expired) {
+      attr(x, 'ts') <- ts
+    }
+  }
 
   .env <- environment()
   within(x, {
@@ -109,11 +133,16 @@ insert.exphist <- function(x, val) {
     }
 
     if(val != 0) {
-      tstamps <- c(tstamps + 1, 1)
-      sizes   <- c(sizes, 1)
-      buckets <- c(buckets, val)
-      LAST  <- sizes[1]
-      TOTAL <- TOTAL + 1
+      if(!is.null(buckets) && !expired) {
+        n <- length(buckets)
+        buckets[n] <- buckets[n] + val
+      } else {
+        tstamps <- c(tstamps + 1, 1)
+        sizes   <- c(sizes, 1)
+        buckets <- c(buckets, val)
+        LAST  <- sizes[1]
+        TOTAL <- TOTAL + 1
+      }
     }
 
     .env$L <- 2 + K/2
@@ -166,7 +195,8 @@ size.default <- function(x) {
 #' @rdname size
 #' @method size exphist
 size.exphist <- function(x) {
-  with(x, TOTAL - 0.5*LAST)
+  f <- as.numeric(.is.last(x))
+  with(x, TOTAL - 0.5*f*LAST)
 }
 
 
@@ -186,4 +216,11 @@ print.exphist <- function(x, ...) {
     print(tstamps, ...)
     cat('\n')
   })
+}
+
+#' Determines if the last bucket is being used
+#' @param x exponential histogram
+#' @return TRUE is the last bucket is in use, FALSE otherwise
+.is.last <- function(x) {
+  with(x, length(buckets) > ceiling((K/2)*(log(1+2*N/K)+1)))
 }
