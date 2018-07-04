@@ -15,7 +15,7 @@ test_that('exphist returns an objet of class "exphist"', {
 
 test_that('insert yields an objet of class "exphist"', {
   eh <- exphist()
-  expect_error(insert(eh, NULL), 'is.numeric\\(val\\) is not TRUE')
+  expect_error(insert(eh, NULL), 'is.numeric\\(val\\) && length\\(val\\) == 1 is not TRUE')
   expect_error(insert(1, eh), "class mismatch: expected 'exphist', found 'numeric'")
   expect_s3_class(insert(eh, 2), 'exphist')
 })
