@@ -5,7 +5,7 @@ Version: 0.1.0
 Author: Pedro Costa
 Maintainer: Pedro Costa <pedro.mpm.costa@gmail.com>
 Description: Implementation of exponential histograms as proposed by 
-    Data et al (2001).
+    Datar et al (2001).
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
