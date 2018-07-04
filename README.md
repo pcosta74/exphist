@@ -2,9 +2,9 @@
 Implementation of exponential histograms as proposed by Datar et al (2001).
 
 ### What is an exponential histogram?
-The Exponential Histogram algorithm is presented in [Maintaining Stream Statistics over Sliding Windows](http://www-cs-students.stanford.edu/~datar/papers/sicomp_streams.pdf) by Datar, Gionis, Indyk and Motwani.
+The exponential histogram algorithm is presented in [Maintaining Stream Statistics over Sliding Windows](http://www-cs-students.stanford.edu/~datar/papers/sicomp_streams.pdf) by Datar, Gionis, Indyk and Motwani.
 
-An Exponential Histogram is a sliding window counter that can be used to compute statistics over data streams guaranteeing a bounded relative error. At initialization time, it is possible to configure the data structure with
+An exponential histogram is a sliding window counter that can be used to compute statistics over data streams guaranteeing a bounded relative error. At initialization time, it is possible to configure the data structure with
 
 - **winsize:** size of the sliding window
 - **epsilon:** maximum relative error
