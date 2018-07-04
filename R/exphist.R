@@ -99,7 +99,7 @@ insert.default <- function(x, val, ts=NULL) {
 #' @rdname insert
 #' @method insert exphist
 insert.exphist <- function(x, val, ts=NULL) {
-  stopifnot(is.numeric(val))
+  stopifnot(is.numeric(val) && length(val)== 1)
   stopifnot(is.null(ts) || is.numeric(ts))
 
   expired  <- TRUE
