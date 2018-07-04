@@ -23,13 +23,16 @@ test_that('insert yields an objet of class "exphist"', {
 test_that('value yields the correct sum of bucket values', {
   eh <- exphist()
   eh <- insert(eh, 1)
+  eh <- insert(eh, 0)
   eh <- insert(eh, 1)
   expect_equal(value(eh), 2)
 })
 
 test_that('time-based exphist yield the correct value and size', {
   eh <- exphist(duration=5)
-  for(t in 1:6) eh <- insert(eh, 1, t)
+  for(t in 1:12) {
+    eh <- insert(eh, t%%2, t)
+  }
   expect_equal(value(eh), 6)
   expect_equal(size(eh), 2)
 })
